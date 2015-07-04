@@ -1,0 +1,36 @@
+Big Data Tools (1/1 point)
+Why is using traditional analysis tools for big data a poor choice?
+1) Storage is becoming less expensive.
+2) The time to read from a 1 TB drive is 3 hours.
+3) Big data does not fit on a single machine. - correct
+4) CPUs are getting faster and faster every year. 
+
+Modern Big Data Hardware (1/1 point)
+Which of the following properties does modern hardware for big data have:
+1) Uses premium hardware
+2) Uses consumer grade hardware, - correct
+3) Uses complex hardware
+4) Uses complex software, - correct
+5) Easy to add capacity, - correct
+
+Using Divide and Conquer (1/1 point)
+What are some of the challenges of using divide and conquer:
+1) Moving data is very expensive, - correct
+2) Using a single machine is faster than multiple machines
+3) Having many machines means having to deal with many failures, - correct
+4) Having many machines means having to deal with slow machines, - correct
+5) Using hash tables for very large documents works well 
+
+Map Reduce (1/1 point)
+Which of the following problems does a MapReduce implementation handle?
+1) Recovering from machine failures, - correct
+2) Shuffling data between the Map and Reduce functions, - correct
+3) Running the Map and Reduce functions on many machines, - correct
+4) Recovering from slow machines, - correct
+
+Map Reduce and Spark Differences (1/1 point)
+Spark is often faster than a traditional MapReduce implementation because:
+1) It sends less data over the network
+2) Results do not need to be written to disk, - correct
+3) It detects machine failures more quickly
+4) It replicates the output of each task to recover from failures quickly 
