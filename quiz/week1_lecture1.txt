@@ -1,0 +1,43 @@
+Data Growth (1/1 point)
+Data is growing faster than Moore's law.
+1) True, - correct
+2) False
+
+Supervised and Unsupervised (1/1 point)
+Select all of the true statements:
+1) Supervised models are trained on unlabeled data
+2) Supervised models are trained on labeled data, - correct
+3) Unsupervised models are trained on unlabeled data, - correct
+4) Unsupervised models are trained on labeled data 
+
+Spam Model (1/1 point)
+A model that predicts spam / not-spam is a:
+1) Regression Model
+2) Classification Model Classification Model, - correct
+3) Clustering Model 
+
+Gradient Descent (1/1 point)
+Gradient descent can be used to train various kinds of regression and
+classification models.
+1) True, - correct
+2) False 
+
+Probabilistic Interpretation (1/1 point)
+Which of the following models has the most direct probabilistic
+interpretation?
+1) Logistic Regression Logistic Regression, - correct
+2) K-means
+3) Linear Regression
+
+Overfitting (1/1 point)
+If we train and evalute our model using our test data, it is likely that our
+evaluation of the resulting model will be:
+1) Overly Pessimistic
+2) Fair
+3) Overly Optimistic, - correct
+
+Big O Notation (1/1 point)
+An algorithm with O(n^3) complexity will always run slower than an algorithm
+with O(n^2) complexity.
+1) True
+2) False, - correct
