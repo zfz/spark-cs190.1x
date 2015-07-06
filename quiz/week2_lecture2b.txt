@@ -1,0 +1,35 @@
+Resilient Distributed Datasets (1/1 point)
+Which of the following is not a property of RDDs?
+1) They can be changed after they are constructed They can be changed after they are constructed, - correct 
+2) They can be created by transformations applied to existing RDDs
+3) They enable parallel operations on collections of distributed data
+4) They track lineage information to enable efficient recomputation of lost data
+
+Spark Transformations (1/1 point)
+Which of the following are properties of Spark transformations?
+1) They are computed right away
+2) They are vulnerable to machine failures
+3) They are like a recipe for creating a result, - correct
+
+Spark Actions (1/1 point)
+Which of the following is not a property of Spark Actions?
+1) They cause Spark to execute the recipe to transform the source data
+2) They are the primary mechanism for getting results out of Spark
+3) They are lazily evaluated, - correct
+4) They are lazily evaluated - correct The results are returned to the driver 
+
+Spark Program Lifecycle (1/1 point)
+Which of the following are part of a Spark program's lifecycle?
+1) RDDs that are reused may be cached, - correct
+2) Transformations cause parallel computation to be immediately executed
+3) Actions cause parallel computation to be immediately executed, - correct
+4) Transformations lazily create new RDDs, - correct
+5) Actions create recipes for peforming parallel computation on datasets 
+
+pySpark Shared Variables (2/2 points)
+In iterative or repeated computations, broadcast variables avoid the problem of repeatedly sending the same data to workers:
+1) False
+2) True, - correct
+Accumulators can be used by Spark workers to efficiently read values during distributed computations:
+1) False, - correct
+2) True
