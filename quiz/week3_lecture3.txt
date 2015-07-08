@@ -1,0 +1,48 @@
+Model Complexity (1/1 point)
+Imagine we have two regression models, where model A has weights (1.0, 2.0,
+1.5) and model B has weights (0.0, 1.0, 0.75). If these two models have the
+same training error, then under the ridge regression optimization criterion
+with a positive value for the regularization parameter, which model is more
+favorable?
+1) Model A
+2) Model B, - correct
+3) The two models are equally favorable
+
+Closed-form Solutions (1/1 point)
+Select the machine learning techniques that have closed-form solutions:
+1) Linear Regression, - correct
+2) Gradient Descent
+3) Ridge Regression, - correct
+
+Linear Regression Complexity (1/1 point)
+According to the lecture, which of the following statements about the time and space complexity of linear regression is accurate?:
+1) O(nd^2 + d^3) computation, - correct
+2) O(nd + d^2) computation
+3) O(nd + d^2) storage, - correct
+4) O(nd^2 + d^3) storage 
+
+Data Growth (1/1 point)
+Which of the following techniques reduce the computational or storage burde when dealing with massive amounts of data?
+1) Using sparse representations, - correct
+2) Low-rank approximation, - correct
+3) Gradient descent, - correct
+
+Gradient Descent (1/1 point)
+Select the true statements about gradient descent:
+1) Iterative algorithm, - correct
+2) Convergence can be slow, - correct
+3) Can't be parallelized
+4) Always finds global minimum
+5) Requires communication across nodes, - correct
+
+Scalable Algorithms (1/1 point)
+Which of the following communication considerations impact the design of scalable learning algorithms?
+1) Memory throughput is only slightly higher than disk throughput
+2) Network throughput is substantially higher than disk throughput
+3) Memory throughput is substantially higher than both disk and network throughput, - correct
+
+Latency (1/1 point)
+Select the true statements about latency:
+1) The ratio of memory latency to disk latency is similar in magnitude to the ratio of memory throughput to disk throughput.
+2) Memory access has lower latency than disk access, - correct
+3) You can amortize latency by sending updates frequently 
