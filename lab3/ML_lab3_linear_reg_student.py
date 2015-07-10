@@ -635,7 +635,7 @@ pass
 # #### **(4a) `LinearRegressionWithSGD` **
 # #### We're already doing better than the baseline model, but let's see if we can do better by adding an intercept, using regularization, and (based on the previous visualization) training for more iterations.  MLlib's [LinearRegressionWithSGD](https://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.regression.LinearRegressionWithSGD) essentially implements the same algorithm that we implemented in Part (3b), albeit more efficiently and with various additional functionality, such as stochastic gradient approximation, including an intercept in the model and also allowing L1 or L2 regularization.  First use LinearRegressionWithSGD to train a model with L2 regularization and with an intercept.  This method returns a [LinearRegressionModel](https://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.regression.LinearRegressionModel).  Next, use the model's [weights](http://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.regression.LinearRegressionModel.weights) and [intercept](http://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.regression.LinearRegressionModel.intercept) attributes to print out the model's parameters.
 
-# In[ ]:
+# In[38]:
 
 from pyspark.mllib.regression import LinearRegressionWithSGD
 # Values to use when training the linear regression model
@@ -647,18 +647,23 @@ regType = 'l2'  # regType
 useIntercept = True  # intercept
 
 
-# In[ ]:
+# In[41]:
 
 # TODO: Replace <FILL IN> with appropriate code
-firstModel = LinearRegressionWithSGD.<FILL IN>
+firstModel = LinearRegressionWithSGD.train(data = parsedTrainData, 
+                                           iterations = numIters, 
+                                           miniBatchFraction = miniBatchFrac, 
+                                           regParam = reg,
+                                           regType = regType,
+                                           intercept = useIntercept)
 
 # weightsLR1 stores the model weights; interceptLR1 stores the model intercept
-weightsLR1 = <FILL IN>
-interceptLR1 = <FILL IN>
+weightsLR1 = firstModel.weights
+interceptLR1 = firstModel.intercept
 print weightsLR1, interceptLR1
 
 
-# In[ ]:
+# In[42]:
 
 # TEST LinearRegressionWithSGD (4a)
 expectedIntercept = 13.3335907631
@@ -671,15 +676,16 @@ Test.assertTrue(np.allclose(weightsLR1, expectedWeights), 'incorrect value for w
 # #### **(4b) Predict**
 # #### Now use the [LinearRegressionModel.predict()](http://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.regression.LinearRegressionModel.predict) method to make a prediction on a sample point.  Pass the `features` from a `LabeledPoint` into the `predict()` method.
 
-# In[ ]:
+# In[47]:
 
 # TODO: Replace <FILL IN> with appropriate code
 samplePoint = parsedTrainData.take(1)[0]
-samplePrediction = <FILL IN>
+#print samplePoint
+samplePrediction = firstModel.predict(np.array(samplePoint.features))
 print samplePrediction
 
 
-# In[ ]:
+# In[48]:
 
 # TEST Predict (4b)
 Test.assertTrue(np.allclose(samplePrediction, 56.8013380112),
@@ -689,17 +695,17 @@ Test.assertTrue(np.allclose(samplePrediction, 56.8013380112),
 # #### ** (4c) Evaluate RMSE **
 # #### Next evaluate the accuracy of this model on the validation set.  Use the `predict()` method to create a `labelsAndPreds` RDD, and then use the `calcRMSE()` function from Part (2b).
 
-# In[ ]:
+# In[53]:
 
 # TODO: Replace <FILL IN> with appropriate code
-labelsAndPreds = <FILL IN>
-rmseValLR1 = <FILL IN>
+labelsAndPreds = parsedValData.map(lambda x: (x.label, firstModel.predict(x.features)))
+rmseValLR1 = calcRMSE(labelsAndPreds)
 
 print ('Validation RMSE:\n\tBaseline = {0:.3f}\n\tLR0 = {1:.3f}' +
        '\n\tLR1 = {2:.3f}').format(rmseValBase, rmseValLR0, rmseValLR1)
 
 
-# In[ ]:
+# In[54]:
 
 # TEST Evaluate RMSE (4c)
 Test.assertTrue(np.allclose(rmseValLR1, 19.691247), 'incorrect value for rmseValLR1')
@@ -708,7 +714,7 @@ Test.assertTrue(np.allclose(rmseValLR1, 19.691247), 'incorrect value for rmseVal
 # #### ** (4d) Grid search **
 # #### We're already outperforming the baseline on the validation set by almost 2 years on average, but let's see if we can do better. Perform grid search to find a good regularization parameter.  Try `regParam` values `1e-10`, `1e-5`, and `1`.
 
-# In[ ]:
+# In[55]:
 
 # TODO: Replace <FILL IN> with appropriate code
 bestRMSE = rmseValLR1
@@ -718,7 +724,7 @@ bestModel = firstModel
 numIters = 500
 alpha = 1.0
 miniBatchFrac = 1.0
-for reg in <FILL IN>:
+for reg in [1e-10, 1e-5, 1]:
     model = LinearRegressionWithSGD.train(parsedTrainData, numIters, alpha,
                                           miniBatchFrac, regParam=reg,
                                           regType='l2', intercept=True)
@@ -736,7 +742,7 @@ print ('Validation RMSE:\n\tBaseline = {0:.3f}\n\tLR0 = {1:.3f}\n\tLR1 = {2:.3f}
        '\tLRGrid = {3:.3f}').format(rmseValBase, rmseValLR0, rmseValLR1, rmseValLRGrid)
 
 
-# In[ ]:
+# In[56]:
 
 # TEST Grid search (4d)
 Test.assertTrue(np.allclose(17.017170, rmseValLRGrid), 'incorrect value for rmseValLRGrid')
@@ -745,7 +751,7 @@ Test.assertTrue(np.allclose(17.017170, rmseValLRGrid), 'incorrect value for rmse
 # #### ** Visualization 5: Best model's predictions**
 # #### Next, we create a visualization similar to 'Visualization 3: Predicted vs. actual' from Part 2 using the predictions from the best model from Part (4d) on the validation dataset.  Specifically, we create a color-coded scatter plot visualizing tuples storing i) the predicted value from this model and ii) true label.
 
-# In[ ]:
+# In[57]:
 
 predictions = np.asarray(parsedValData
                          .map(lambda lp: bestModel.predict(lp.features))
@@ -771,14 +777,14 @@ pass
 # #### ** (4e) Vary alpha and the number of iterations **
 # #### In the previous grid search, we set `alpha = 1` for all experiments.  Now let's see what happens when we vary `alpha`.  Specifically, try `1e-5` and `10` as values for `alpha` and also try training models for 500 iterations (as before) but also for 5 iterations. Evaluate all models on the validation set.  Note that if we set `alpha` too small the gradient descent will require a huge number of steps to converge to the solution, and if we use too large of an `alpha` it can cause numerical problems, like you'll see below for `alpha = 10`.
 
-# In[ ]:
+# In[58]:
 
 # TODO: Replace <FILL IN> with appropriate code
 reg = bestRegParam
 modelRMSEs = []
 
-for alpha in <FILL IN>:
-    for numIters in <FILL IN>:
+for alpha in [1e-5, 10]:
+    for numIters in [5, 500]:
         model = LinearRegressionWithSGD.train(parsedTrainData, numIters, alpha,
                                               miniBatchFrac, regParam=reg,
                                               regType='l2', intercept=True)
@@ -788,7 +794,7 @@ for alpha in <FILL IN>:
         modelRMSEs.append(rmseVal)
 
 
-# In[ ]:
+# In[59]:
 
 # TEST Vary alpha and the number of iterations (4e)
 expectedResults = sorted([56.969705, 56.892949, 355124752.221221])
@@ -798,7 +804,7 @@ Test.assertTrue(np.allclose(sorted(modelRMSEs)[:3], expectedResults), 'incorrect
 # #### **Visualization 6: Hyperparameter heat map **
 # #### Next, we perform a visualization of hyperparameter search using a larger set of hyperparameters (with precomputed results).  Specifically, we create a heat map where the brighter colors correspond to lower RMSE values.  The first plot has a large area with brighter colors.  In order to differentiate within the bright region, we generate a second plot corresponding to the hyperparameters found within that region.
 
-# In[ ]:
+# In[60]:
 
 from matplotlib.colors import LinearSegmentedColormap
 
@@ -826,7 +832,7 @@ image = plt.imshow(rmseVal,interpolation='nearest', aspect='auto',
                     cmap = colors)
 
 
-# In[ ]:
+# In[61]:
 
 # Zoom into the bottom left
 numItersParamsZoom, regParamsZoom = numItersParams[-3:], regParams[:4]
