@@ -510,7 +510,7 @@ Test.assertEquals(labelsAndPredsExample.collect(), [(2.0, 1.75), (1.5, 1.25)],
 # #### ** (3c) Gradient descent **
 # #### Next, implement a gradient descent function for linear regression and test out this function on an example.
 
-# In[31]:
+# In[30]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def linregGradientDescent(trainData, numIters):
@@ -567,7 +567,7 @@ exampleWeights, exampleErrorTrain = linregGradientDescent(exampleData, exampleNu
 print exampleWeights
 
 
-# In[32]:
+# In[31]:
 
 # TEST Gradient descent (3c)
 expectedOutput = [48.88110449,  36.01144093, 30.25350092]
@@ -581,7 +581,7 @@ Test.assertTrue(np.allclose(exampleErrorTrain, expectedError),
 # #### Now let's train a linear regression model on all of our training data and evaluate its accuracy on the validation set.  Note that the test set will not be used here.  If we evaluated the model on the test set, we would bias our final results.
 # #### We've already done much of the required work: we computed the number of features in Part (1b); we created the training and validation datasets and computed their sizes in Part (1e); and, we wrote a function to compute RMSE in Part (2b).
 
-# In[33]:
+# In[32]:
 
 # TODO: Replace <FILL IN> with appropriate code
 numIters = 50
@@ -594,7 +594,7 @@ print 'Validation RMSE:\n\tBaseline = {0:.3f}\n\tLR0 = {1:.3f}'.format(rmseValBa
                                                                        rmseValLR0)
 
 
-# In[34]:
+# In[33]:
 
 # TEST Train the model (3d)
 expectedOutput = [22.64535883, 20.064699, -0.05341901, 8.2931319, 5.79155768, -4.51008084,
@@ -605,7 +605,7 @@ Test.assertTrue(np.allclose(weightsLR0, expectedOutput), 'incorrect value for we
 # #### ** Visualization 4: Training error **
 # #### We will look at the log of the training error as a function of iteration. The first scatter plot visualizes the logarithm of the training error for all 50 iterations.  The second plot shows the training error itself, focusing on the final 44 iterations.
 
-# In[35]:
+# In[34]:
 
 norm = Normalize()
 clrs = cmap(np.asarray(norm(np.log(errorTrainLR0))))[:,0:3]
@@ -617,7 +617,7 @@ ax.set_xlabel('Iteration'), ax.set_ylabel(r'$\log_e(errorTrainLR0)$')
 pass
 
 
-# In[36]:
+# In[35]:
 
 norm = Normalize()
 clrs = cmap(np.asarray(norm(errorTrainLR0[6:])))[:,0:3]
@@ -635,7 +635,7 @@ pass
 # #### **(4a) `LinearRegressionWithSGD` **
 # #### We're already doing better than the baseline model, but let's see if we can do better by adding an intercept, using regularization, and (based on the previous visualization) training for more iterations.  MLlib's [LinearRegressionWithSGD](https://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.regression.LinearRegressionWithSGD) essentially implements the same algorithm that we implemented in Part (3b), albeit more efficiently and with various additional functionality, such as stochastic gradient approximation, including an intercept in the model and also allowing L1 or L2 regularization.  First use LinearRegressionWithSGD to train a model with L2 regularization and with an intercept.  This method returns a [LinearRegressionModel](https://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.regression.LinearRegressionModel).  Next, use the model's [weights](http://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.regression.LinearRegressionModel.weights) and [intercept](http://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.regression.LinearRegressionModel.intercept) attributes to print out the model's parameters.
 
-# In[38]:
+# In[36]:
 
 from pyspark.mllib.regression import LinearRegressionWithSGD
 # Values to use when training the linear regression model
@@ -647,7 +647,7 @@ regType = 'l2'  # regType
 useIntercept = True  # intercept
 
 
-# In[41]:
+# In[37]:
 
 # TODO: Replace <FILL IN> with appropriate code
 firstModel = LinearRegressionWithSGD.train(data = parsedTrainData, 
@@ -663,7 +663,7 @@ interceptLR1 = firstModel.intercept
 print weightsLR1, interceptLR1
 
 
-# In[42]:
+# In[38]:
 
 # TEST LinearRegressionWithSGD (4a)
 expectedIntercept = 13.3335907631
@@ -676,7 +676,7 @@ Test.assertTrue(np.allclose(weightsLR1, expectedWeights), 'incorrect value for w
 # #### **(4b) Predict**
 # #### Now use the [LinearRegressionModel.predict()](http://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.regression.LinearRegressionModel.predict) method to make a prediction on a sample point.  Pass the `features` from a `LabeledPoint` into the `predict()` method.
 
-# In[47]:
+# In[39]:
 
 # TODO: Replace <FILL IN> with appropriate code
 samplePoint = parsedTrainData.take(1)[0]
@@ -685,7 +685,7 @@ samplePrediction = firstModel.predict(np.array(samplePoint.features))
 print samplePrediction
 
 
-# In[48]:
+# In[40]:
 
 # TEST Predict (4b)
 Test.assertTrue(np.allclose(samplePrediction, 56.8013380112),
@@ -695,7 +695,7 @@ Test.assertTrue(np.allclose(samplePrediction, 56.8013380112),
 # #### ** (4c) Evaluate RMSE **
 # #### Next evaluate the accuracy of this model on the validation set.  Use the `predict()` method to create a `labelsAndPreds` RDD, and then use the `calcRMSE()` function from Part (2b).
 
-# In[53]:
+# In[41]:
 
 # TODO: Replace <FILL IN> with appropriate code
 labelsAndPreds = parsedValData.map(lambda x: (x.label, firstModel.predict(x.features)))
@@ -705,7 +705,7 @@ print ('Validation RMSE:\n\tBaseline = {0:.3f}\n\tLR0 = {1:.3f}' +
        '\n\tLR1 = {2:.3f}').format(rmseValBase, rmseValLR0, rmseValLR1)
 
 
-# In[54]:
+# In[42]:
 
 # TEST Evaluate RMSE (4c)
 Test.assertTrue(np.allclose(rmseValLR1, 19.691247), 'incorrect value for rmseValLR1')
@@ -714,7 +714,7 @@ Test.assertTrue(np.allclose(rmseValLR1, 19.691247), 'incorrect value for rmseVal
 # #### ** (4d) Grid search **
 # #### We're already outperforming the baseline on the validation set by almost 2 years on average, but let's see if we can do better. Perform grid search to find a good regularization parameter.  Try `regParam` values `1e-10`, `1e-5`, and `1`.
 
-# In[55]:
+# In[43]:
 
 # TODO: Replace <FILL IN> with appropriate code
 bestRMSE = rmseValLR1
@@ -742,7 +742,7 @@ print ('Validation RMSE:\n\tBaseline = {0:.3f}\n\tLR0 = {1:.3f}\n\tLR1 = {2:.3f}
        '\tLRGrid = {3:.3f}').format(rmseValBase, rmseValLR0, rmseValLR1, rmseValLRGrid)
 
 
-# In[56]:
+# In[44]:
 
 # TEST Grid search (4d)
 Test.assertTrue(np.allclose(17.017170, rmseValLRGrid), 'incorrect value for rmseValLRGrid')
@@ -751,7 +751,7 @@ Test.assertTrue(np.allclose(17.017170, rmseValLRGrid), 'incorrect value for rmse
 # #### ** Visualization 5: Best model's predictions**
 # #### Next, we create a visualization similar to 'Visualization 3: Predicted vs. actual' from Part 2 using the predictions from the best model from Part (4d) on the validation dataset.  Specifically, we create a color-coded scatter plot visualizing tuples storing i) the predicted value from this model and ii) true label.
 
-# In[57]:
+# In[45]:
 
 predictions = np.asarray(parsedValData
                          .map(lambda lp: bestModel.predict(lp.features))
@@ -777,7 +777,7 @@ pass
 # #### ** (4e) Vary alpha and the number of iterations **
 # #### In the previous grid search, we set `alpha = 1` for all experiments.  Now let's see what happens when we vary `alpha`.  Specifically, try `1e-5` and `10` as values for `alpha` and also try training models for 500 iterations (as before) but also for 5 iterations. Evaluate all models on the validation set.  Note that if we set `alpha` too small the gradient descent will require a huge number of steps to converge to the solution, and if we use too large of an `alpha` it can cause numerical problems, like you'll see below for `alpha = 10`.
 
-# In[58]:
+# In[46]:
 
 # TODO: Replace <FILL IN> with appropriate code
 reg = bestRegParam
@@ -794,7 +794,7 @@ for alpha in [1e-5, 10]:
         modelRMSEs.append(rmseVal)
 
 
-# In[59]:
+# In[47]:
 
 # TEST Vary alpha and the number of iterations (4e)
 expectedResults = sorted([56.969705, 56.892949, 355124752.221221])
@@ -804,7 +804,7 @@ Test.assertTrue(np.allclose(sorted(modelRMSEs)[:3], expectedResults), 'incorrect
 # #### **Visualization 6: Hyperparameter heat map **
 # #### Next, we perform a visualization of hyperparameter search using a larger set of hyperparameters (with precomputed results).  Specifically, we create a heat map where the brighter colors correspond to lower RMSE values.  The first plot has a large area with brighter colors.  In order to differentiate within the bright region, we generate a second plot corresponding to the hyperparameters found within that region.
 
-# In[60]:
+# In[48]:
 
 from matplotlib.colors import LinearSegmentedColormap
 
@@ -832,7 +832,7 @@ image = plt.imshow(rmseVal,interpolation='nearest', aspect='auto',
                     cmap = colors)
 
 
-# In[61]:
+# In[49]:
 
 # Zoom into the bottom left
 numItersParamsZoom, regParamsZoom = numItersParams[-3:], regParams[:4]
@@ -857,7 +857,7 @@ pass
 # #### So far, we've used the features as they were provided.  Now, we will add features that capture the two-way interactions between our existing features.  Write a function `twoWayInteractions` that takes in a `LabeledPoint` and generates a new `LabeledPoint` that contains the old features and the two-way interactions between them.  Note that a dataset with three features would have nine ( $ \scriptsize 3^2 $ ) two-way interactions.
 # #### You might want to use [itertools.product](https://docs.python.org/2/library/itertools.html#itertools.product) to generate tuples for each of the possible 2-way interactions.  Remember that you can combine two `DenseVector` or `ndarray` objects using [np.hstack](http://docs.scipy.org/doc/numpy/reference/generated/numpy.hstack.html#numpy.hstack).
 
-# In[ ]:
+# In[57]:
 
 # TODO: Replace <FILL IN> with appropriate code
 import itertools
@@ -876,17 +876,20 @@ def twoWayInteractions(lp):
         LabeledPoint: The new `LabeledPoint` should have the same label as `lp`.  Its features
             should include the features from `lp` followed by the two-way interaction features.
     """
-    <FILL IN>
+    new_features = DenseVector([i[0] * i[1] for i in itertools.product(lp.features, repeat=2)])
+    interact_features = np.hstack((lp.features, new_features))
+    #print interact_features
+    return LabeledPoint(lp.label, interact_features)
 
 print twoWayInteractions(LabeledPoint(0.0, [2, 3]))
 
 # Transform the existing train, validation, and test sets to include two-way interactions.
-trainDataInteract = <FILL IN>
-valDataInteract = <FILL IN>
-testDataInteract = <FILL IN>
+trainDataInteract = parsedTrainData.map(twoWayInteractions)
+valDataInteract = parsedValData.map(twoWayInteractions)
+testDataInteract = parsedTestData.map(twoWayInteractions)
 
 
-# In[ ]:
+# In[58]:
 
 # TEST Add two-way interactions (5a)
 twoWayExample = twoWayInteractions(LabeledPoint(0.0, [2, 3]))
@@ -910,7 +913,7 @@ Test.assertTrue(np.allclose(sum(testDataInteract.take(1)[0].features), 35.109111
 # #### Now, let's build the new model.  We've done this several times now.  To implement this for the new features, we need to change a few variable names.  Remember that we should build our model from the training data and evaluate it on the validation data.
 # ####  Note that you should re-run your hyperparameter search after changing features, as using the best hyperparameters from your prior model will not necessary lead to the best model.  For this exercise, we have already preset the hyperparameters to reasonable values.
 
-# In[ ]:
+# In[59]:
 
 # TODO: Replace <FILL IN> with appropriate code
 numIters = 500
@@ -918,10 +921,10 @@ alpha = 1.0
 miniBatchFrac = 1.0
 reg = 1e-10
 
-modelInteract = LinearRegressionWithSGD.train(<FILL IN>, numIters, alpha,
+modelInteract = LinearRegressionWithSGD.train(trainDataInteract, numIters, alpha,
                                               miniBatchFrac, regParam=reg,
                                               regType='l2', intercept=True)
-labelsAndPredsInteract = <FILL IN>.map(lambda lp: (lp.label, <FILL IN>.predict(lp.features)))
+labelsAndPredsInteract = valDataInteract.map(lambda lp: (lp.label, modelInteract.predict(lp.features)))
 rmseValInteract = calcRMSE(labelsAndPredsInteract)
 
 print ('Validation RMSE:\n\tBaseline = {0:.3f}\n\tLR0 = {1:.3f}\n\tLR1 = {2:.3f}\n\tLRGrid = ' +
@@ -929,7 +932,7 @@ print ('Validation RMSE:\n\tBaseline = {0:.3f}\n\tLR0 = {1:.3f}\n\tLR1 = {2:.3f}
                                                  rmseValLRGrid, rmseValInteract)
 
 
-# In[ ]:
+# In[60]:
 
 # TEST Build interaction model (5b)
 Test.assertTrue(np.allclose(rmseValInteract, 15.6894664683), 'incorrect value for rmseValInteract')
@@ -939,17 +942,17 @@ Test.assertTrue(np.allclose(rmseValInteract, 15.6894664683), 'incorrect value fo
 # #### Our final step is to evaluate the new model on the test dataset.  Note that we haven't used the test set to evaluate any of our models.  Because of this, our evaluation provides us with an unbiased estimate for how our model will perform on new data.  If we had changed our model based on viewing its performance on the test set, our estimate of RMSE would likely be overly optimistic.
 # #### We'll also print the RMSE for both the baseline model and our new model.  With this information, we can see how much better our model performs than the baseline model.
 
-# In[ ]:
+# In[61]:
 
 # TODO: Replace <FILL IN> with appropriate code
-labelsAndPredsTest = <FILL IN>
-rmseTestInteract = <FILL IN>
+labelsAndPredsTest = testDataInteract.map(lambda x: (x.label, modelInteract.predict(x.features)))
+rmseTestInteract = calcRMSE(labelsAndPredsTest)
 
 print ('Test RMSE:\n\tBaseline = {0:.3f}\n\tLRInteract = {1:.3f}'
        .format(rmseTestBase, rmseTestInteract))
 
 
-# In[ ]:
+# In[62]:
 
 # TEST Evaluate interaction model on test data (5c)
 Test.assertTrue(np.allclose(rmseTestInteract, 16.3272040537),
