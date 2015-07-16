@@ -91,7 +91,7 @@ import numpy as np
 from pyspark.mllib.linalg import SparseVector
 
 
-# In[28]:
+# In[6]:
 
 # TODO: Replace <FILL IN> with appropriate code
 aDense = np.array([0., 3., 0., 4.])
@@ -107,7 +107,7 @@ print bDense.dot(w)
 print bSparse.dot(w)
 
 
-# In[29]:
+# In[7]:
 
 # TEST Sparse Vectors (1b)
 Test.assertTrue(isinstance(aSparse, SparseVector), 'aSparse needs to be an instance of SparseVector')
@@ -121,7 +121,7 @@ Test.assertTrue(bDense.dot(w) == bSparse.dot(w),
 # #### **(1c) OHE features as sparse vectors **
 # #### Now let's see how we can represent the OHE features for points in our sample dataset.  Using the mapping defined by the OHE dictionary from Part (1a), manually define OHE features for the three sample data points using SparseVector format.  Any feature that occurs in a point should have the value 1.0.  For example, the `DenseVector` for a point with features 2 and 4 would be `[0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0]`.
 
-# In[30]:
+# In[8]:
 
 # Reminder of the sample features
 # sampleOne = [(0, 'mouse'), (1, 'black')]
@@ -129,7 +129,7 @@ Test.assertTrue(bDense.dot(w) == bSparse.dot(w),
 # sampleThree =  [(0, 'bear'), (1, 'black'), (2, 'salmon')]
 
 
-# In[31]:
+# In[9]:
 
 # TODO: Replace <FILL IN> with appropriate code
 sampleOneOHEFeatManual = SparseVector(7, [2, 3], [1, 1])
@@ -137,7 +137,7 @@ sampleTwoOHEFeatManual = SparseVector(7, [1, 4, 5], [1, 1, 1])
 sampleThreeOHEFeatManual = SparseVector(7, [0, 3, 6], [1, 1, 1])
 
 
-# In[32]:
+# In[10]:
 
 # TEST OHE Features as sparse vectors (1c)
 Test.assertTrue(isinstance(sampleOneOHEFeatManual, SparseVector),
@@ -160,7 +160,7 @@ Test.assertEqualsHashed(sampleThreeOHEFeatManual,
 # #### **(1d) Define a OHE function **
 # #### Next we will use the OHE dictionary from Part (1a) to programatically generate OHE features from the original categorical data.  First write a function called `oneHotEncoding` that creates OHE feature vectors in `SparseVector` format.  Then use this function to create OHE features for the first sample data point and verify that the result matches the result from Part (1c).
 
-# In[35]:
+# In[11]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def oneHotEncoding(rawFeats, OHEDict, numOHEFeats):
@@ -195,7 +195,7 @@ sampleOneOHEFeat = oneHotEncoding(sampleOne, sampleOHEDictManual, numSampleOHEFe
 print sampleOneOHEFeat
 
 
-# In[36]:
+# In[12]:
 
 # TEST Define an OHE Function (1d)
 Test.assertTrue(sampleOneOHEFeat == sampleOneOHEFeatManual,
@@ -210,14 +210,14 @@ Test.assertEquals(oneHotEncoding([(1, 'black'), (0, 'mouse')], sampleOHEDictManu
 # #### **(1e) Apply OHE to a dataset **
 # #### Finally, use the function from Part (1d) to create OHE features for all 3 data points in the sample dataset.
 
-# In[38]:
+# In[13]:
 
 # TODO: Replace <FILL IN> with appropriate code
 sampleOHEData = sampleDataRDD.map(lambda x: oneHotEncoding(x, sampleOHEDictManual, numSampleOHEFeats))
 print sampleOHEData.collect()
 
 
-# In[39]:
+# In[14]:
 
 # TEST Apply OHE to a dataset (1e)
 sampleOHEDataValues = sampleOHEData.collect()
@@ -235,16 +235,17 @@ Test.assertEquals(sampleOHEDataValues[2], SparseVector(7, {0: 1.0, 3: 1.0, 6: 1.
 # #### **(2a) Pair RDD of `(featureID, category)` **
 # #### To start, create an RDD of distinct `(featureID, category)` tuples. In our sample dataset, the 7 items in the resulting RDD are `(0, 'bear')`, `(0, 'cat')`, `(0, 'mouse')`, `(1, 'black')`, `(1, 'tabby')`, `(2, 'mouse')`, `(2, 'salmon')`. Notably `'black'` appears twice in the dataset but only contributes one item to the RDD: `(1, 'black')`, while `'mouse'` also appears twice and contributes two items: `(0, 'mouse')` and `(2, 'mouse')`.  Use [flatMap](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD.flatMap) and [distinct](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD.distinct).
 
-# In[ ]:
+# In[20]:
 
 # TODO: Replace <FILL IN> with appropriate code
 sampleDistinctFeats = (sampleDataRDD
-                       <FILL IN>)
+                       .flatMap(lambda x: x).distinct())
 
 
-# In[ ]:
+# In[22]:
 
 # TEST Pair RDD of (featureID, category) (2a)
+#print sampleDistinctFeats.collect()
 Test.assertEquals(sorted(sampleDistinctFeats.collect()),
                   [(0, 'bear'), (0, 'cat'), (0, 'mouse'), (1, 'black'),
                    (1, 'tabby'), (2, 'mouse'), (2, 'salmon')],
@@ -255,15 +256,15 @@ Test.assertEquals(sorted(sampleDistinctFeats.collect()),
 # #### Next, create an `RDD` of key-value tuples, where each `(featureID, category)` tuple in `sampleDistinctFeats` is a key and the values are distinct integers ranging from 0 to (number of keys - 1).  Then convert this `RDD` into a dictionary, which can be done using the `collectAsMap` action.  Note that there is no unique mapping from keys to values, as all we require is that each `(featureID, category)` key be mapped to a unique integer between 0 and the number of keys.  In this exercise, any valid mapping is acceptable.  Use [zipWithIndex](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD.zipWithIndex) followed by [collectAsMap](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD.collectAsMap).
 # #### In our sample dataset, one valid list of key-value tuples is: `[((0, 'bear'), 0), ((2, 'salmon'), 1), ((1, 'tabby'), 2), ((2, 'mouse'), 3), ((0, 'mouse'), 4), ((0, 'cat'), 5), ((1, 'black'), 6)]`. The dictionary defined in Part (1a) illustrates another valid mapping between keys and integers.
 
-# In[ ]:
+# In[23]:
 
 # TODO: Replace <FILL IN> with appropriate code
 sampleOHEDict = (sampleDistinctFeats
-                           <FILL IN>)
+                           .zipWithIndex().collectAsMap())
 print sampleOHEDict
 
 
-# In[ ]:
+# In[24]:
 
 # TEST OHE Dictionary from distinct features (2b)
 Test.assertEquals(sorted(sampleOHEDict.keys()),
@@ -276,7 +277,7 @@ Test.assertEquals(sorted(sampleOHEDict.values()), range(7), 'sampleOHEDict has u
 # #### **(2c) Automated creation of an OHE dictionary **
 # #### Now use the code from Parts (2a) and (2b) to write a function that takes an input dataset and outputs an OHE dictionary.  Then use this function to create an OHE dictionary for the sample dataset, and verify that it matches the dictionary from Part (2b).
 
-# In[ ]:
+# In[25]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def createOneHotDict(inputData):
@@ -290,13 +291,14 @@ def createOneHotDict(inputData):
         dict: A dictionary where the keys are (featureID, value) tuples and map to values that are
             unique integers.
     """
-    <FILL IN>
+    distinctFeats = inputData.flatMap(lambda x: x).distinct()
+    return distinctFeats.zipWithIndex().collectAsMap()
 
-sampleOHEDictAuto = <FILL IN>
+sampleOHEDictAuto = createOneHotDict(sampleDataRDD)
 print sampleOHEDictAuto
 
 
-# In[ ]:
+# In[26]:
 
 # TEST Automated creation of an OHE dictionary (2c)
 Test.assertEquals(sorted(sampleOHEDictAuto.keys()),
@@ -314,7 +316,7 @@ Test.assertEquals(sorted(sampleOHEDictAuto.values()), range(7),
 # #### If running the cell below does not render a webpage, open the [Criteo agreement](http://labs.criteo.com/downloads/2014-kaggle-display-advertising-challenge-dataset/) in a separate browser tab.  After you accept the agreement, you can obtain the download URL by right-clicking on the "Download Sample" button and clicking "Copy link address" or "Copy Link Location", depending on your browser.  Paste the URL into the `# TODO` cell below.
 # #### Note that the download could take a few minutes, depending upon your connection speed.
 
-# In[ ]:
+# In[27]:
 
 # Run this code to view Criteo's agreement
 from IPython.lib.display import IFrame
@@ -323,7 +325,7 @@ IFrame("http://labs.criteo.com/downloads/2014-kaggle-display-advertising-challen
        600, 350)
 
 
-# In[ ]:
+# In[30]:
 
 # TODO: Replace <FILL IN> with appropriate code
 # Just replace <FILL IN> with the url for dac_sample.tar.gz
@@ -334,7 +336,7 @@ import urllib
 import urlparse
 
 # Paste url, url should end with: dac_sample.tar.gz
-url = '<FILL IN>'
+url = 'labs.criteo.com/wp-content/uploads/2015/04/dac_sample.tar.gz'
 
 url = url.strip()
 baseDir = os.path.join('data')
@@ -382,7 +384,7 @@ else:
     extractTar()
 
 
-# In[ ]:
+# In[29]:
 
 import os.path
 baseDir = os.path.join('data')
@@ -399,24 +401,26 @@ if os.path.isfile(fileName):
 # #### **(3a) Loading and splitting the data **
 # #### We are now ready to start working with the actual CTR data, and our first task involves splitting it into training, validation, and test sets.  Use the [randomSplit method](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD.randomSplit) with the specified weights and seed to create RDDs storing each of these datasets, and then [cache](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD.cache) each of these RDDs, as we will be accessing them multiple times in the remainder of this lab. Finally, compute the size of each dataset.
 
-# In[ ]:
+# In[31]:
 
 # TODO: Replace <FILL IN> with appropriate code
 weights = [.8, .1, .1]
 seed = 42
 # Use randomSplit with weights and seed
-rawTrainData, rawValidationData, rawTestData = rawData.<FILL IN>
+rawTrainData, rawValidationData, rawTestData = rawData.randomSplit(weights, seed)
 # Cache the data
-<FILL IN>
+rawTrainData.cache()
+rawValidationData.cache()
+rawTestData.cache()
 
-nTrain = <FILL IN>
-nVal = <FILL IN>
-nTest = <FILL IN>
+nTrain = rawTrainData.count()
+nVal = rawValidationData.count()
+nTest = rawTestData.count()
 print nTrain, nVal, nTest, nTrain + nVal + nTest
 print rawData.take(1)
 
 
-# In[ ]:
+# In[32]:
 
 # TEST Loading and splitting the data (3a)
 Test.assertTrue(all([rawTrainData.is_cached, rawValidationData.is_cached, rawTestData.is_cached]),
@@ -429,7 +433,7 @@ Test.assertEquals(nTest, 10014, 'incorrect value for nTest')
 # #### ** (3b) Extract features **
 # #### We will now parse the raw training data to create an RDD that we can subsequently use to create an OHE dictionary. Note from the `take()` command in Part (3a) that each raw data point is a string containing several fields separated by some delimiter.  For now, we will ignore the first field (which is the 0-1 label), and parse the remaining fields (or raw features).  To do this, complete the implemention of the `parsePoint` function.
 
-# In[ ]:
+# In[33]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def parsePoint(point):
@@ -445,7 +449,8 @@ def parsePoint(point):
     Returns:
         list: A list of (featureID, value) tuples.
     """
-    <FILL IN>
+    items = point.split(',')
+    return [(i, item) for i, item in enumerate(items[1:])]
 
 parsedTrainFeat = rawTrainData.map(parsePoint)
 
@@ -460,7 +465,7 @@ numCategories = (parsedTrainFeat
 print numCategories[2][1]
 
 
-# In[ ]:
+# In[34]:
 
 # TEST Extract features (3b)
 Test.assertEquals(numCategories[2][1], 855, 'incorrect implementation of parsePoint')
@@ -470,16 +475,16 @@ Test.assertEquals(numCategories[32][1], 4, 'incorrect implementation of parsePoi
 # #### **(3c) Create an OHE dictionary from the dataset **
 # #### Note that parsePoint returns a data point as a list of `(featureID, category)` tuples, which is the same format as the sample dataset studied in Parts 1 and 2 of this lab.  Using this observation, create an OHE dictionary using the function implemented in Part (2c). Note that we will assume for simplicity that all features in our CTR dataset are categorical.
 
-# In[ ]:
+# In[35]:
 
 # TODO: Replace <FILL IN> with appropriate code
-ctrOHEDict = <FILL IN>
+ctrOHEDict = createOneHotDict(parsedTrainFeat)
 numCtrOHEFeats = len(ctrOHEDict.keys())
 print numCtrOHEFeats
 print ctrOHEDict[(0, '')]
 
 
-# In[ ]:
+# In[36]:
 
 # TEST Create an OHE dictionary from the dataset (3c)
 Test.assertEquals(numCtrOHEFeats, 233286, 'incorrect number of features in ctrOHEDict')
@@ -489,12 +494,12 @@ Test.assertTrue((0, '') in ctrOHEDict, 'incorrect features in ctrOHEDict')
 # #### ** (3d) Apply OHE to the dataset **
 # #### Now let's use this OHE dictionary by starting with the raw training data and creating an RDD of [LabeledPoint](http://spark.apache.org/docs/1.3.1/api/python/pyspark.mllib.html#pyspark.mllib.regression.LabeledPoint) objects using OHE features.  To do this, complete the implementation of the `parseOHEPoint` function. Hint: `parseOHEPoint` is an extension of the `parsePoint` function from Part (3b) and it uses the `oneHotEncoding` function from Part (1d).
 
-# In[ ]:
+# In[40]:
 
 from pyspark.mllib.regression import LabeledPoint
 
 
-# In[ ]:
+# In[43]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def parseOHEPoint(point, OHEDict, numOHEFeats):
@@ -514,7 +519,11 @@ def parseOHEPoint(point, OHEDict, numOHEFeats):
         LabeledPoint: Contains the label for the observation and the one-hot-encoding of the
             raw features based on the provided OHE dictionary.
     """
-    <FILL IN>
+    parsedPoints = parsePoint(point)
+    items = point.split(',')
+    label = items[0]
+    features = oneHotEncoding(parsedPoints, OHEDict, numOHEFeats)
+    return LabeledPoint(label, features)
 
 OHETrainData = rawTrainData.map(lambda point: parseOHEPoint(point, ctrOHEDict, numCtrOHEFeats))
 OHETrainData.cache()
@@ -529,7 +538,7 @@ except TypeError: withOneHot = True
 oneHotEncoding = backupOneHot
 
 
-# In[ ]:
+# In[44]:
 
 # TEST Apply OHE to the dataset (3d)
 numNZ = sum(parsedTrainFeat.map(lambda x: len(x)).take(5))
@@ -541,7 +550,7 @@ Test.assertTrue(withOneHot, 'oneHotEncoding not present in parseOHEPoint')
 # #### **Visualization 1: Feature frequency **
 # #### We will now visualize the number of times each of the 233,286 OHE features appears in the training data. We first compute the number of times each feature appears, then bucket the features by these counts.  The buckets are sized by powers of 2, so the first bucket corresponds to features that appear exactly once ( $ \scriptsize 2^0 $ ), the second to features that appear twice ( $ \scriptsize 2^1 $ ), the third to features that occur between three and four ( $ \scriptsize 2^2 $ ) times, the fifth bucket is five to eight ( $ \scriptsize 2^3 $ ) times and so on. The scatter plot below shows the logarithm of the bucket thresholds versus the logarithm of the number of features that have counts that fall in the buckets.
 
-# In[ ]:
+# In[45]:
 
 def bucketFeatByCount(featCount):
     """Bucket the counts by powers of two."""
@@ -563,7 +572,7 @@ featCountsBuckets = (featCounts
 print featCountsBuckets
 
 
-# In[ ]:
+# In[46]:
 
 import matplotlib.pyplot as plt
 
@@ -595,7 +604,7 @@ pass
 # #### **(3e) Handling unseen features **
 # #### We naturally would like to repeat the process from Part (3d), e.g., to compute OHE features for the validation and test datasets.  However, we must be careful, as some categorical values will likely appear in new data that did not exist in the training data. To deal with this situation, update the `oneHotEncoding()` function from Part (1d) to ignore previously unseen categories, and then compute OHE features for the validation data.
 
-# In[ ]:
+# In[57]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def oneHotEncoding(rawFeats, OHEDict, numOHEFeats):
@@ -617,14 +626,19 @@ def oneHotEncoding(rawFeats, OHEDict, numOHEFeats):
             identifiers for the (featureID, value) combinations that occur in the observation and
             with values equal to 1.0.
     """
-    <FILL IN>
+    #sizeList = [OHEDict[f] for f in rawFeats]
+    sizeList = [OHEDict[f] for f in rawFeats if f in OHEDict]
+    sortedSizeList = sorted(sizeList)
+    #valueList = [1 for f in rawFeats]
+    valueList = [1 for f in rawFeats if f in OHEDict ]
+    return SparseVector(numOHEFeats, sortedSizeList, valueList)
 
 OHEValidationData = rawValidationData.map(lambda point: parseOHEPoint(point, ctrOHEDict, numCtrOHEFeats))
 OHEValidationData.cache()
 print OHEValidationData.take(1)
 
 
-# In[ ]:
+# In[58]:
 
 # TEST Handling unseen features (3e)
 numNZVal = (OHEValidationData
