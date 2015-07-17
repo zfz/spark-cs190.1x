@@ -884,7 +884,7 @@ pass
 # #### As we just saw, using a one-hot-encoding featurization can yield a model with good statistical accuracy.  However, the number of distinct categories across all features is quite large -- recall that we observed 233K categories in the training data in Part (3c).  Moreover, the full Kaggle training dataset includes more than 33M distinct categories, and the Kaggle dataset itself is just a small subset of Criteo's labeled data.  Hence, featurizing via a one-hot-encoding representation would lead to a very large feature vector. To reduce the dimensionality of the feature space, we will use feature hashing.
 # ####Below is the hash function that we will use for this part of the lab.  We will first use this hash function with the three sample data points from Part (1a) to gain some intuition.  Specifically, run code to hash the three sample points using two different values for `numBuckets` and observe the resulting hashed feature dictionaries.
 
-# In[ ]:
+# In[85]:
 
 from collections import defaultdict
 import hashlib
@@ -923,18 +923,18 @@ def hashFunction(numBuckets, rawFeats, printMapping=False):
 # sampleThree =  [(0, 'bear'), (1, 'black'), (2, 'salmon')]
 
 
-# In[ ]:
+# In[88]:
 
 # TODO: Replace <FILL IN> with appropriate code
 # Use four buckets
-sampOneFourBuckets = hashFunction(<FILL IN>, sampleOne, True)
-sampTwoFourBuckets = hashFunction(<FILL IN>, sampleTwo, True)
-sampThreeFourBuckets = hashFunction(<FILL IN>, sampleThree, True)
+sampOneFourBuckets = hashFunction(4, sampleOne, True)
+sampTwoFourBuckets = hashFunction(4, sampleTwo, True)
+sampThreeFourBuckets = hashFunction(4, sampleThree, True)
 
 # Use one hundred buckets
-sampOneHundredBuckets = hashFunction(<FILL IN>, sampleOne, True)
-sampTwoHundredBuckets = hashFunction(<FILL IN>, sampleTwo, True)
-sampThreeHundredBuckets = hashFunction(<FILL IN>, sampleThree, True)
+sampOneHundredBuckets = hashFunction(100, sampleOne, True)
+sampTwoHundredBuckets = hashFunction(100, sampleTwo, True)
+sampThreeHundredBuckets = hashFunction(100, sampleThree, True)
 
 print '\t\t 4 Buckets \t\t\t 100 Buckets'
 print 'SampleOne:\t {0}\t\t {1}'.format(sampOneFourBuckets, sampOneHundredBuckets)
@@ -942,7 +942,7 @@ print 'SampleTwo:\t {0}\t\t {1}'.format(sampTwoFourBuckets, sampTwoHundredBucket
 print 'SampleThree:\t {0}\t {1}'.format(sampThreeFourBuckets, sampThreeHundredBuckets)
 
 
-# In[ ]:
+# In[89]:
 
 # TEST Hash function (5a)
 Test.assertEquals(sampOneFourBuckets, {2: 1.0, 3: 1.0}, 'incorrect value for sampOneFourBuckets')
@@ -953,7 +953,7 @@ Test.assertEquals(sampThreeHundredBuckets, {72: 1.0, 5: 1.0, 14: 1.0},
 # #### ** (5b) Creating hashed features **
 # #### Next we will use this hash function to create hashed features for our CTR datasets. First write a function that uses the hash function from Part (5a) with numBuckets = $ \scriptsize 2^{15} \approx 33K $ to create a `LabeledPoint` with hashed features stored as a `SparseVector`.  Then use this function to create new training, validation and test datasets with hashed features. Hint: `parsedHashPoint` is similar to `parseOHEPoint` from Part (3d).
 
-# In[ ]:
+# In[94]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def parseHashPoint(point, numBuckets):
@@ -968,20 +968,25 @@ def parseHashPoint(point, numBuckets):
         LabeledPoint: A LabeledPoint with a label (0.0 or 1.0) and a SparseVector of hashed
             features.
     """
-    <FILL IN>
+    parsedPoints = parsePoint(point)
+    items = point.split(',')
+    label = items[0]
+    #features = oneHotEncoding(parsedPoints, OHEDict, numOHEFeats)
+    features = hashFunction(numBuckets, parsedPoints, printMapping=False)
+    return LabeledPoint(label, SparseVector(len(features), features))
 
 numBucketsCTR = 2 ** 15
-hashTrainData = <FILL IN>
+hashTrainData = rawTrainData.map(lambda x: parseHashPoint(x, numBucketsCTR))
 hashTrainData.cache()
-hashValidationData = <FILL IN>
+hashValidationData = rawValidationData.map(lambda x: parseHashPoint(x, numBucketsCTR))
 hashValidationData.cache()
-hashTestData = <FILL IN>
+hashTestData = rawTestData.map(lambda x: parseHashPoint(x, numBucketsCTR))
 hashTestData.cache()
 
 print hashTrainData.take(1)
 
 
-# In[ ]:
+# In[95]:
 
 # TEST Creating hashed features (5b)
 hashTrainDataFeatureSum = sum(hashTrainData
