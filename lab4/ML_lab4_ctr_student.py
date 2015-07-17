@@ -16,7 +16,7 @@
 #  
 # #### Note that, for reference, you can look up the details of the relevant Spark methods in [Spark's Python API](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD) and the relevant NumPy methods in the [NumPy Reference](http://docs.scipy.org/doc/numpy/reference/index.html)
 
-# In[1]:
+# In[ ]:
 
 labVersion = 'cs190_week4_v_1_3'
 
@@ -28,7 +28,7 @@ labVersion = 'cs190_week4_v_1_3'
 # #### In a one-hot-encoding (OHE) scheme, we want to represent each tuple of `(featureID, category)` via its own binary feature.  We can do this in Python by creating a dictionary that maps each tuple to a distinct integer, where the integer corresponds to a binary feature. To start, manually enter the entries in the OHE dictionary associated with the sample dataset by mapping the tuples to consecutive integers starting from zero,  ordering the tuples first by featureID and next by category.
 # #### Later in this lab, we'll use OHE dictionaries to transform data points into compact lists of features that can be used in machine learning algorithms.
 
-# In[2]:
+# In[1]:
 
 # Data for manual OHE
 # Note: the first data point does not include any value for the optional third feature
@@ -38,7 +38,7 @@ sampleThree =  [(0, 'bear'), (1, 'black'), (2, 'salmon')]
 sampleDataRDD = sc.parallelize([sampleOne, sampleTwo, sampleThree])
 
 
-# In[3]:
+# In[2]:
 
 # TODO: Replace <FILL IN> with appropriate code
 sampleOHEDictManual = {}
@@ -51,7 +51,7 @@ sampleOHEDictManual[(2, 'mouse')] = 5
 sampleOHEDictManual[(2, 'salmon')] = 6
 
 
-# In[4]:
+# In[3]:
 
 # TEST One-hot-encoding (1a)
 from test_helper import Test
@@ -85,13 +85,13 @@ Test.assertEquals(len(sampleOHEDictManual.keys()), 7,
 # #### Data points can typically be represented with a small number of non-zero OHE features relative to the total number of features that occur in the dataset.  By leveraging this sparsity and using sparse vector representations of OHE data, we can reduce storage and computational burdens.  Below are a few sample vectors represented as dense numpy arrays.  Use [SparseVector](https://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.linalg.SparseVector) to represent them in a sparse fashion, and verify that both the sparse and dense representations yield the same results when computing [dot products](http://en.wikipedia.org/wiki/Dot_product) (we will later use MLlib to train classifiers via gradient descent, and MLlib will need to compute dot products between SparseVectors and dense parameter vectors).
 # #### Use `SparseVector(size, *args)` to create a new sparse vector where size is the length of the vector and args is either a dictionary, a list of (index, value) pairs, or two separate arrays of indices and values (sorted by index).  You'll need to create a sparse vector representation of each dense vector `aDense` and `bDense`.
 
-# In[5]:
+# In[4]:
 
 import numpy as np
 from pyspark.mllib.linalg import SparseVector
 
 
-# In[6]:
+# In[5]:
 
 # TODO: Replace <FILL IN> with appropriate code
 aDense = np.array([0., 3., 0., 4.])
@@ -107,7 +107,7 @@ print bDense.dot(w)
 print bSparse.dot(w)
 
 
-# In[7]:
+# In[6]:
 
 # TEST Sparse Vectors (1b)
 Test.assertTrue(isinstance(aSparse, SparseVector), 'aSparse needs to be an instance of SparseVector')
@@ -121,7 +121,7 @@ Test.assertTrue(bDense.dot(w) == bSparse.dot(w),
 # #### **(1c) OHE features as sparse vectors **
 # #### Now let's see how we can represent the OHE features for points in our sample dataset.  Using the mapping defined by the OHE dictionary from Part (1a), manually define OHE features for the three sample data points using SparseVector format.  Any feature that occurs in a point should have the value 1.0.  For example, the `DenseVector` for a point with features 2 and 4 would be `[0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0]`.
 
-# In[8]:
+# In[7]:
 
 # Reminder of the sample features
 # sampleOne = [(0, 'mouse'), (1, 'black')]
@@ -129,7 +129,7 @@ Test.assertTrue(bDense.dot(w) == bSparse.dot(w),
 # sampleThree =  [(0, 'bear'), (1, 'black'), (2, 'salmon')]
 
 
-# In[9]:
+# In[8]:
 
 # TODO: Replace <FILL IN> with appropriate code
 sampleOneOHEFeatManual = SparseVector(7, [2, 3], [1, 1])
@@ -137,7 +137,7 @@ sampleTwoOHEFeatManual = SparseVector(7, [1, 4, 5], [1, 1, 1])
 sampleThreeOHEFeatManual = SparseVector(7, [0, 3, 6], [1, 1, 1])
 
 
-# In[10]:
+# In[9]:
 
 # TEST OHE Features as sparse vectors (1c)
 Test.assertTrue(isinstance(sampleOneOHEFeatManual, SparseVector),
@@ -160,7 +160,7 @@ Test.assertEqualsHashed(sampleThreeOHEFeatManual,
 # #### **(1d) Define a OHE function **
 # #### Next we will use the OHE dictionary from Part (1a) to programatically generate OHE features from the original categorical data.  First write a function called `oneHotEncoding` that creates OHE feature vectors in `SparseVector` format.  Then use this function to create OHE features for the first sample data point and verify that the result matches the result from Part (1c).
 
-# In[11]:
+# In[10]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def oneHotEncoding(rawFeats, OHEDict, numOHEFeats):
@@ -195,7 +195,7 @@ sampleOneOHEFeat = oneHotEncoding(sampleOne, sampleOHEDictManual, numSampleOHEFe
 print sampleOneOHEFeat
 
 
-# In[12]:
+# In[11]:
 
 # TEST Define an OHE Function (1d)
 Test.assertTrue(sampleOneOHEFeat == sampleOneOHEFeatManual,
@@ -210,14 +210,14 @@ Test.assertEquals(oneHotEncoding([(1, 'black'), (0, 'mouse')], sampleOHEDictManu
 # #### **(1e) Apply OHE to a dataset **
 # #### Finally, use the function from Part (1d) to create OHE features for all 3 data points in the sample dataset.
 
-# In[13]:
+# In[12]:
 
 # TODO: Replace <FILL IN> with appropriate code
 sampleOHEData = sampleDataRDD.map(lambda x: oneHotEncoding(x, sampleOHEDictManual, numSampleOHEFeats))
 print sampleOHEData.collect()
 
 
-# In[14]:
+# In[13]:
 
 # TEST Apply OHE to a dataset (1e)
 sampleOHEDataValues = sampleOHEData.collect()
@@ -235,17 +235,16 @@ Test.assertEquals(sampleOHEDataValues[2], SparseVector(7, {0: 1.0, 3: 1.0, 6: 1.
 # #### **(2a) Pair RDD of `(featureID, category)` **
 # #### To start, create an RDD of distinct `(featureID, category)` tuples. In our sample dataset, the 7 items in the resulting RDD are `(0, 'bear')`, `(0, 'cat')`, `(0, 'mouse')`, `(1, 'black')`, `(1, 'tabby')`, `(2, 'mouse')`, `(2, 'salmon')`. Notably `'black'` appears twice in the dataset but only contributes one item to the RDD: `(1, 'black')`, while `'mouse'` also appears twice and contributes two items: `(0, 'mouse')` and `(2, 'mouse')`.  Use [flatMap](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD.flatMap) and [distinct](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD.distinct).
 
-# In[20]:
+# In[14]:
 
 # TODO: Replace <FILL IN> with appropriate code
 sampleDistinctFeats = (sampleDataRDD
                        .flatMap(lambda x: x).distinct())
 
 
-# In[22]:
+# In[15]:
 
 # TEST Pair RDD of (featureID, category) (2a)
-#print sampleDistinctFeats.collect()
 Test.assertEquals(sorted(sampleDistinctFeats.collect()),
                   [(0, 'bear'), (0, 'cat'), (0, 'mouse'), (1, 'black'),
                    (1, 'tabby'), (2, 'mouse'), (2, 'salmon')],
@@ -256,7 +255,7 @@ Test.assertEquals(sorted(sampleDistinctFeats.collect()),
 # #### Next, create an `RDD` of key-value tuples, where each `(featureID, category)` tuple in `sampleDistinctFeats` is a key and the values are distinct integers ranging from 0 to (number of keys - 1).  Then convert this `RDD` into a dictionary, which can be done using the `collectAsMap` action.  Note that there is no unique mapping from keys to values, as all we require is that each `(featureID, category)` key be mapped to a unique integer between 0 and the number of keys.  In this exercise, any valid mapping is acceptable.  Use [zipWithIndex](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD.zipWithIndex) followed by [collectAsMap](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD.collectAsMap).
 # #### In our sample dataset, one valid list of key-value tuples is: `[((0, 'bear'), 0), ((2, 'salmon'), 1), ((1, 'tabby'), 2), ((2, 'mouse'), 3), ((0, 'mouse'), 4), ((0, 'cat'), 5), ((1, 'black'), 6)]`. The dictionary defined in Part (1a) illustrates another valid mapping between keys and integers.
 
-# In[23]:
+# In[16]:
 
 # TODO: Replace <FILL IN> with appropriate code
 sampleOHEDict = (sampleDistinctFeats
@@ -264,7 +263,7 @@ sampleOHEDict = (sampleDistinctFeats
 print sampleOHEDict
 
 
-# In[24]:
+# In[17]:
 
 # TEST OHE Dictionary from distinct features (2b)
 Test.assertEquals(sorted(sampleOHEDict.keys()),
@@ -277,7 +276,7 @@ Test.assertEquals(sorted(sampleOHEDict.values()), range(7), 'sampleOHEDict has u
 # #### **(2c) Automated creation of an OHE dictionary **
 # #### Now use the code from Parts (2a) and (2b) to write a function that takes an input dataset and outputs an OHE dictionary.  Then use this function to create an OHE dictionary for the sample dataset, and verify that it matches the dictionary from Part (2b).
 
-# In[25]:
+# In[18]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def createOneHotDict(inputData):
@@ -298,7 +297,7 @@ sampleOHEDictAuto = createOneHotDict(sampleDataRDD)
 print sampleOHEDictAuto
 
 
-# In[26]:
+# In[19]:
 
 # TEST Automated creation of an OHE dictionary (2c)
 Test.assertEquals(sorted(sampleOHEDictAuto.keys()),
@@ -316,7 +315,7 @@ Test.assertEquals(sorted(sampleOHEDictAuto.values()), range(7),
 # #### If running the cell below does not render a webpage, open the [Criteo agreement](http://labs.criteo.com/downloads/2014-kaggle-display-advertising-challenge-dataset/) in a separate browser tab.  After you accept the agreement, you can obtain the download URL by right-clicking on the "Download Sample" button and clicking "Copy link address" or "Copy Link Location", depending on your browser.  Paste the URL into the `# TODO` cell below.
 # #### Note that the download could take a few minutes, depending upon your connection speed.
 
-# In[27]:
+# In[20]:
 
 # Run this code to view Criteo's agreement
 from IPython.lib.display import IFrame
@@ -325,7 +324,7 @@ IFrame("http://labs.criteo.com/downloads/2014-kaggle-display-advertising-challen
        600, 350)
 
 
-# In[30]:
+# In[23]:
 
 # TODO: Replace <FILL IN> with appropriate code
 # Just replace <FILL IN> with the url for dac_sample.tar.gz
@@ -336,7 +335,7 @@ import urllib
 import urlparse
 
 # Paste url, url should end with: dac_sample.tar.gz
-url = 'labs.criteo.com/wp-content/uploads/2015/04/dac_sample.tar.gz'
+url = 'http://labs.criteo.com/wp-content/uploads/2015/04/dac_sample.tar.gz'
 
 url = url.strip()
 baseDir = os.path.join('data')
@@ -384,7 +383,7 @@ else:
     extractTar()
 
 
-# In[29]:
+# In[24]:
 
 import os.path
 baseDir = os.path.join('data')
@@ -401,7 +400,7 @@ if os.path.isfile(fileName):
 # #### **(3a) Loading and splitting the data **
 # #### We are now ready to start working with the actual CTR data, and our first task involves splitting it into training, validation, and test sets.  Use the [randomSplit method](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD.randomSplit) with the specified weights and seed to create RDDs storing each of these datasets, and then [cache](https://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD.cache) each of these RDDs, as we will be accessing them multiple times in the remainder of this lab. Finally, compute the size of each dataset.
 
-# In[31]:
+# In[25]:
 
 # TODO: Replace <FILL IN> with appropriate code
 weights = [.8, .1, .1]
@@ -420,7 +419,7 @@ print nTrain, nVal, nTest, nTrain + nVal + nTest
 print rawData.take(1)
 
 
-# In[32]:
+# In[26]:
 
 # TEST Loading and splitting the data (3a)
 Test.assertTrue(all([rawTrainData.is_cached, rawValidationData.is_cached, rawTestData.is_cached]),
@@ -433,7 +432,7 @@ Test.assertEquals(nTest, 10014, 'incorrect value for nTest')
 # #### ** (3b) Extract features **
 # #### We will now parse the raw training data to create an RDD that we can subsequently use to create an OHE dictionary. Note from the `take()` command in Part (3a) that each raw data point is a string containing several fields separated by some delimiter.  For now, we will ignore the first field (which is the 0-1 label), and parse the remaining fields (or raw features).  To do this, complete the implemention of the `parsePoint` function.
 
-# In[33]:
+# In[27]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def parsePoint(point):
@@ -465,7 +464,7 @@ numCategories = (parsedTrainFeat
 print numCategories[2][1]
 
 
-# In[34]:
+# In[28]:
 
 # TEST Extract features (3b)
 Test.assertEquals(numCategories[2][1], 855, 'incorrect implementation of parsePoint')
@@ -475,7 +474,7 @@ Test.assertEquals(numCategories[32][1], 4, 'incorrect implementation of parsePoi
 # #### **(3c) Create an OHE dictionary from the dataset **
 # #### Note that parsePoint returns a data point as a list of `(featureID, category)` tuples, which is the same format as the sample dataset studied in Parts 1 and 2 of this lab.  Using this observation, create an OHE dictionary using the function implemented in Part (2c). Note that we will assume for simplicity that all features in our CTR dataset are categorical.
 
-# In[35]:
+# In[29]:
 
 # TODO: Replace <FILL IN> with appropriate code
 ctrOHEDict = createOneHotDict(parsedTrainFeat)
@@ -484,7 +483,7 @@ print numCtrOHEFeats
 print ctrOHEDict[(0, '')]
 
 
-# In[36]:
+# In[30]:
 
 # TEST Create an OHE dictionary from the dataset (3c)
 Test.assertEquals(numCtrOHEFeats, 233286, 'incorrect number of features in ctrOHEDict')
@@ -494,12 +493,12 @@ Test.assertTrue((0, '') in ctrOHEDict, 'incorrect features in ctrOHEDict')
 # #### ** (3d) Apply OHE to the dataset **
 # #### Now let's use this OHE dictionary by starting with the raw training data and creating an RDD of [LabeledPoint](http://spark.apache.org/docs/1.3.1/api/python/pyspark.mllib.html#pyspark.mllib.regression.LabeledPoint) objects using OHE features.  To do this, complete the implementation of the `parseOHEPoint` function. Hint: `parseOHEPoint` is an extension of the `parsePoint` function from Part (3b) and it uses the `oneHotEncoding` function from Part (1d).
 
-# In[40]:
+# In[31]:
 
 from pyspark.mllib.regression import LabeledPoint
 
 
-# In[43]:
+# In[33]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def parseOHEPoint(point, OHEDict, numOHEFeats):
@@ -538,7 +537,7 @@ except TypeError: withOneHot = True
 oneHotEncoding = backupOneHot
 
 
-# In[44]:
+# In[34]:
 
 # TEST Apply OHE to the dataset (3d)
 numNZ = sum(parsedTrainFeat.map(lambda x: len(x)).take(5))
@@ -550,7 +549,7 @@ Test.assertTrue(withOneHot, 'oneHotEncoding not present in parseOHEPoint')
 # #### **Visualization 1: Feature frequency **
 # #### We will now visualize the number of times each of the 233,286 OHE features appears in the training data. We first compute the number of times each feature appears, then bucket the features by these counts.  The buckets are sized by powers of 2, so the first bucket corresponds to features that appear exactly once ( $ \scriptsize 2^0 $ ), the second to features that appear twice ( $ \scriptsize 2^1 $ ), the third to features that occur between three and four ( $ \scriptsize 2^2 $ ) times, the fifth bucket is five to eight ( $ \scriptsize 2^3 $ ) times and so on. The scatter plot below shows the logarithm of the bucket thresholds versus the logarithm of the number of features that have counts that fall in the buckets.
 
-# In[45]:
+# In[35]:
 
 def bucketFeatByCount(featCount):
     """Bucket the counts by powers of two."""
@@ -572,7 +571,7 @@ featCountsBuckets = (featCounts
 print featCountsBuckets
 
 
-# In[46]:
+# In[36]:
 
 import matplotlib.pyplot as plt
 
@@ -604,7 +603,7 @@ pass
 # #### **(3e) Handling unseen features **
 # #### We naturally would like to repeat the process from Part (3d), e.g., to compute OHE features for the validation and test datasets.  However, we must be careful, as some categorical values will likely appear in new data that did not exist in the training data. To deal with this situation, update the `oneHotEncoding()` function from Part (1d) to ignore previously unseen categories, and then compute OHE features for the validation data.
 
-# In[57]:
+# In[37]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def oneHotEncoding(rawFeats, OHEDict, numOHEFeats):
@@ -638,7 +637,7 @@ OHEValidationData.cache()
 print OHEValidationData.take(1)
 
 
-# In[58]:
+# In[38]:
 
 # TEST Handling unseen features (3e)
 numNZVal = (OHEValidationData
@@ -652,7 +651,7 @@ Test.assertEquals(numNZVal, 372080, 'incorrect number of features')
 # #### ** (4a) Logistic regression **
 # #### We are now ready to train our first CTR classifier.  A natural classifier to use in this setting is logistic regression, since it models the probability of a click-through event rather than returning a binary response, and when working with rare events, probabilistic predictions are useful.  First use [LogisticRegressionWithSGD](https://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.classification.LogisticRegressionWithSGD) to train a model using `OHETrainData` with the given hyperparameter configuration.  `LogisticRegressionWithSGD` returns a [LogisticRegressionModel](https://spark.apache.org/docs/latest/api/python/pyspark.mllib.html#pyspark.mllib.regression.LogisticRegressionModel).  Next, use the `LogisticRegressionModel.weights` and `LogisticRegressionModel.intercept` attributes to print out the model's parameters.  Note that these are the names of the object's attributes and should be called using a syntax like `model.weights` for a given `model`.
 
-# In[ ]:
+# In[39]:
 
 from pyspark.mllib.classification import LogisticRegressionWithSGD
 
@@ -664,15 +663,20 @@ regType = 'l2'
 includeIntercept = True
 
 
-# In[ ]:
+# In[40]:
 
 # TODO: Replace <FILL IN> with appropriate code
-model0 = <FILL IN>
+model0 = LogisticRegressionWithSGD.train(data = OHETrainData, 
+                                         iterations = numIters, 
+                                         step = stepSize, 
+                                         regParam = regParam,
+                                         regType = regType,
+                                         intercept = includeIntercept)
 sortedWeights = sorted(model0.weights)
 print sortedWeights[:5], model0.intercept
 
 
-# In[ ]:
+# In[41]:
 
 # TEST Logistic regression (4a)
 Test.assertTrue(np.allclose(model0.intercept,  0.56455084025), 'incorrect value for model0.intercept')
@@ -684,7 +688,7 @@ Test.assertTrue(np.allclose(sortedWeights[0:5],
 # #### ** (4b) Log loss **
 # #### Throughout this lab, we will use log loss to evaluate the quality of models.  Log loss is defined as: $$  \begin{align} \scriptsize \ell_{log}(p, y) = \begin{cases} -\log (p) & \text{if } y = 1 \\\ -\log(1-p) & \text{if } y = 0 \end{cases} \end{align} $$ where $ \scriptsize p$ is a probability between 0 and 1 and $ \scriptsize y$ is a label of either 0 or 1. Log loss is a standard evaluation criterion when predicting rare-events such as click-through rate prediction (it is also the criterion used in the [Criteo Kaggle competition](https://www.kaggle.com/c/criteo-display-ad-challenge)).  Write a function to compute log loss, and evaluate it on some sample inputs.
 
-# In[ ]:
+# In[42]:
 
 # TODO: Replace <FILL IN> with appropriate code
 from math import log
@@ -704,7 +708,10 @@ def computeLogLoss(p, y):
         float: The log loss value.
     """
     epsilon = 10e-12
-    <FILL IN>
+    if y == 1:
+        return -log(epsilon + p) if p == 0 else -log(p)
+    elif y == 0:
+        return -log(1 - p + epsilon) if p == 1 else -log(1 - p)
 
 print computeLogLoss(.5, 1)
 print computeLogLoss(.5, 0)
@@ -717,7 +724,7 @@ print computeLogLoss(1, 1)
 print computeLogLoss(1, 0)
 
 
-# In[ ]:
+# In[43]:
 
 # TEST Log loss (4b)
 Test.assertTrue(np.allclose([computeLogLoss(.5, 1), computeLogLoss(.01, 0), computeLogLoss(.01, 1)],
@@ -731,19 +738,19 @@ Test.assertTrue(np.allclose([computeLogLoss(0, 1), computeLogLoss(1, 1), compute
 # #### ** (4c)  Baseline log loss **
 # #### Next we will use the function we wrote in Part (4b) to compute the baseline log loss on the training data. A very simple yet natural baseline model is one where we always make the same prediction independent of the given datapoint, setting the predicted value equal to the fraction of training points that correspond to click-through events (i.e., where the label is one). Compute this value (which is simply the mean of the training labels), and then use it to compute the training log loss for the baseline model.  The log loss for multiple observations is the mean of the individual log loss values.
 
-# In[ ]:
+# In[52]:
 
 # TODO: Replace <FILL IN> with appropriate code
 # Note that our dataset has a very high click-through rate by design
 # In practice click-through rate can be one to two orders of magnitude lower
-classOneFracTrain = <FILL IN>
+classOneFracTrain = OHETrainData.map(lambda x: x.label).reduce(lambda a, b: a + b) / OHETrainData.count()
 print classOneFracTrain
 
-logLossTrBase = <FILL IN>
+logLossTrBase = OHETrainData.map(lambda x: computeLogLoss(classOneFracTrain, x.label)).sum() / OHETrainData.count()
 print 'Baseline Train Logloss = {0:.3f}\n'.format(logLossTrBase)
 
 
-# In[ ]:
+# In[53]:
 
 # TEST Baseline log loss (4c)
 Test.assertTrue(np.allclose(classOneFracTrain, 0.22717773523), 'incorrect value for classOneFracTrain')
@@ -754,7 +761,7 @@ Test.assertTrue(np.allclose(logLossTrBase, 0.535844), 'incorrect value for logLo
 # #### In order to compute the log loss for the model we trained in Part (4a), we need to write code to generate predictions from this model. Write a function that computes the raw linear prediction from this logistic regression model and then passes it through a [sigmoid function](http://en.wikipedia.org/wiki/Sigmoid_function) $ \scriptsize \sigma(t) = (1+ e^{-t})^{-1} $ to return the model's probabilistic prediction. Then compute probabilistic predictions on the training data.
 # #### Note that when incorporating an intercept into our predictions, we simply add the intercept to the value of the prediction obtained from the weights and features.  Alternatively, if the intercept was included as the first weight, we would need to add a corresponding feature to our data where the feature has the value one.  This is not the case here.
 
-# In[ ]:
+# In[60]:
 
 # TODO: Replace <FILL IN> with appropriate code
 from math import exp #  exp(-t) = e^-t
@@ -774,19 +781,19 @@ def getP(x, w, intercept):
     Returns:
         float: A probability between 0 and 1.
     """
-    rawPrediction = <FILL IN>
+    rawPrediction = x.dot(w) + intercept
 
     # Bound the raw prediction value
     rawPrediction = min(rawPrediction, 20)
     rawPrediction = max(rawPrediction, -20)
-    return <FILL IN>
+    return 1.0 / (1.0 + exp(-rawPrediction)) 
 
-trainingPredictions = <FILL IN>
+trainingPredictions = OHETrainData.map(lambda x: getP(x.features, model0.weights, model0.intercept))
 
 print trainingPredictions.take(5)
 
 
-# In[ ]:
+# In[61]:
 
 # TEST Predicted probability (4d)
 Test.assertTrue(np.allclose(trainingPredictions.sum(), 18135.4834348),
@@ -796,7 +803,7 @@ Test.assertTrue(np.allclose(trainingPredictions.sum(), 18135.4834348),
 # #### ** (4e) Evaluate the model **
 # #### We are now ready to evaluate the quality of the model we trained in Part (4a). To do this, first write a general function that takes as input a model and data, and outputs the log loss.  Then run this function on the OHE training data, and compare the result with the baseline log loss.
 
-# In[ ]:
+# In[71]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def evaluateResults(model, data):
@@ -809,14 +816,14 @@ def evaluateResults(model, data):
     Returns:
         float: Log loss for the data.
     """
-    <FILL IN>
+    return data.map(lambda x: computeLogLoss(getP(x.features, model0.weights, model0.intercept), x.label)).sum() / data.count()
 
 logLossTrLR0 = evaluateResults(model0, OHETrainData)
 print ('OHE Features Train Logloss:\n\tBaseline = {0:.3f}\n\tLogReg = {1:.3f}'
        .format(logLossTrBase, logLossTrLR0))
 
 
-# In[ ]:
+# In[72]:
 
 # TEST Evaluate the model (4e)
 Test.assertTrue(np.allclose(logLossTrLR0, 0.456903), 'incorrect value for logLossTrLR0')
@@ -825,17 +832,17 @@ Test.assertTrue(np.allclose(logLossTrLR0, 0.456903), 'incorrect value for logLos
 # #### ** (4f) Validation log loss **
 # #### Next, following the same logic as in Parts (4c) and 4(e), compute the validation log loss for both the baseline and logistic regression models. Notably, the baseline model for the validation data should still be based on the label fraction from the training dataset.
 
-# In[ ]:
+# In[81]:
 
 # TODO: Replace <FILL IN> with appropriate code
-logLossValBase = <FILL IN>
+logLossValBase = OHEValidationData.map(lambda x: computeLogLoss(classOneFracTrain, x.label)).sum() / OHEValidationData.count()
 
-logLossValLR0 = <FILL IN>
+logLossValLR0 = evaluateResults(model0, OHEValidationData)
 print ('OHE Features Validation Logloss:\n\tBaseline = {0:.3f}\n\tLogReg = {1:.3f}'
        .format(logLossValBase, logLossValLR0))
 
 
-# In[ ]:
+# In[82]:
 
 # TEST Validation log loss (4f)
 Test.assertTrue(np.allclose(logLossValBase, 0.527603), 'incorrect value for logLossValBase')
@@ -845,7 +852,7 @@ Test.assertTrue(np.allclose(logLossValLR0, 0.456957), 'incorrect value for logLo
 # #### **Visualization 2: ROC curve **
 # #### We will now visualize how well the model predicts our target.  To do this we generate a plot of the ROC curve.  The ROC curve shows us the trade-off between the false positive rate and true positive rate, as we liberalize the threshold required to predict a positive outcome.  A random model is represented by the dashed line.
 
-# In[ ]:
+# In[83]:
 
 labelsAndScores = OHEValidationData.map(lambda lp:
                                             (lp.label, getP(lp.features, model0.weights, model0.intercept)))
