@@ -1,0 +1,60 @@
+CTR Modeling (1/1 point)
+Why is CTR modeling crucial for online advertising?
+1) Amount advertisers pay is often based on the effectiveness of the ad (e.g., obtaining a click or conversion), - correct
+2) Publishers want to maximize the money they make hosting ads (hence want to
+host ads with high CTR), - correct
+3) 3rd party matchmakers need to make good matches to stay in business, - correct
+
+Loss Functions (1/1 point)
+What is the purpose of a loss function?
+1) It’s a way to penalize a model for incorrect predictions, - correct
+2) It precisely defines the optimization problem to be solved for a particular learning model, - correct
+3) It creates new features for use in the model 
+
+Convex Loss Functions (1/1 point)
+Which of the following loss functions are convex?
+1) Log-loss, - correct
+2) 0 / 1 loss 
+
+Logistic Regression with Regularization (1/1 point)
+Select the true statements for logistic regression with regularization:
+1) When lambda equals one, it provides the same result as standard logistic regression
+2) Can be framed as minimizing a convex function, - correct
+3) Closed-form solution exists 
+
+The Logistic Function (1/1 point)
+The logistic function 1 / (1 + exp^(-z)):
+1) Has a probabilistic interpretation, - correct
+2) Approaches 0 for large positive inputs
+3) Returns values between 0 and 1, - correct
+
+Classification Thresholds (1/1 point)
+When using probabilistic predictions to classify, we should vary the threshold
+based on the relative harm of false positives relative to false negatives.
+1) True, - correct
+2) False 
+
+Spam Example (1/1 point)
+In the spam example, if we use a threshold of 0 for spam classification, what percentage of emails will be classified as spam?
+1) 0%
+2) 50%
+3) 100%, correct
+
+Transforming Categorical Features (1/1 point)
+Representing a categorical feature by a single numeric variable (with a variety of values) can introduce relationships / constraints that were non-existent prior to the transformation.
+1) True, - correct
+2) False 
+
+Sparse Representations (1/1 point)
+Using a sparse representation of our data can:
+1) Save storage space, - correct
+2) Reduce computational costs, - correct
+
+Feature Collisions (1/1 point)
+With feature hashing it is possible to hash different features to the same bucket.
+1) True, - correct
+2) False 
+
+Feature hashing requires communication of intermediate results across nodes.
+1) True
+2) False, - correct
