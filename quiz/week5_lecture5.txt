@@ -1,0 +1,61 @@
+Neurons (1/1 point)
+A mouse brain has approximately how many times as many neurons as the brain of a larval zebrafish?
+1) 80
+2) 800, - correct
+3) 8000 
+
+fMRI (1/1 point)
+fMRI scanners provide too low of a resolution to tell, in detail, what is occurring at the neuron level.
+1) True, - correct
+2) False 
+
+Light-sheet Microscopy (1/1 point)
+Light-sheet microscopy can only be used in transparent animals.
+1) True, - correct
+2) False 
+
+Experiment Data (1/1 point)
+According to the lecture, recording the neuron activity of the entire brain of a larval zebrafish during a typical experiment requires:
+1) 1 MB of data
+2) 1 GB of data
+3) 1 TB of data 1 TB of data, - correct
+4) 1 PB of data 
+
+Clustering (1/1 point)
+Clustering is a supervised learning technique.
+1) True
+2) False, - correct
+
+PCA Distance Metric (1/1 point)
+When working with two dimensional data, if we project data points onto the top principal component (which is a line in 2D space), the distance between the projected points and the original points minimizes which distance?
+1) vertical distance
+2) euclidean distance euclidean distance, - correct
+3) manhattan distance
+4) horizontal distance
+
+Covariance Matrix Symmetry (1/1 point)
+The covariance matrix is asymmetric.
+1) True
+2) False, - correct
+
+Covariance Matrix Diagonal Entries (1/1 point)
+The values along the diagonal of the covariance matrix are variances.
+1) True, - correct
+2) False 
+
+Principal Components Properties (1/1 point)
+For a set of principal component vectors, the dot product between any two distinct vectors equals:
+1) One
+2) Zero, - correct
+3) d -- the number of features 
+
+Principal Components (1/1 point)
+Principal components equal the eigenvalues of some matrix.
+1) True
+2) False, - correct
+
+Number of Principal Components (1/1 point)
+Given a d-dimensional dataset with n observations, the total number of principal components is:
+1) n
+2) d, - correct
+3) some other number 
