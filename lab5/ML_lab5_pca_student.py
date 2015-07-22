@@ -120,15 +120,15 @@ Test.assertTrue(np.allclose(correlatedDataZeroMean.take(1)[0], [-0.28561917, 0.1
 #  
 # #### Note that [np.outer()](http://docs.scipy.org/doc/numpy/reference/generated/numpy.outer.html) can be used to calculate the outer product of two NumPy arrays.
 
-# In[ ]:
+# In[19]:
 
 # TODO: Replace <FILL IN> with appropriate code
 # Compute the covariance matrix using outer products and correlatedDataZeroMean
-correlatedCov = <FILL IN>
+correlatedCov = correlatedDataZeroMean.map(lambda x: np.outer(x, x)).mean()
 print correlatedCov
 
 
-# In[ ]:
+# In[20]:
 
 # TEST Sample covariance matrix (1b)
 covResult = [[ 0.99558386,  0.90148989], [0.90148989, 1.08607497]]
