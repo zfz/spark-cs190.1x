@@ -138,7 +138,7 @@ Test.assertTrue(np.allclose(covResult, correlatedCov), 'incorrect value for corr
 # #### **(1c) Covariance Function**
 # #### Next, use the expressions above to write a function to compute the sample covariance matrix for an arbitrary `data` RDD.
 
-# In[ ]:
+# In[26]:
 
 # TODO: Replace <FILL IN> with appropriate code
 def estimateCovariance(data):
@@ -155,13 +155,14 @@ def estimateCovariance(data):
         np.ndarray: A multi-dimensional array where the number of rows and columns both equal the
             length of the arrays in the input `RDD`.
     """
-    <FILL IN>
+    meanCorrelated = data.sum() / data.count()
+    return data.map(lambda x: x - meanCorrelated).map(lambda x: np.outer(x, x)).mean()
 
 correlatedCovAuto= estimateCovariance(correlatedData)
 print correlatedCovAuto
 
 
-# In[ ]:
+# In[27]:
 
 # TEST Covariance function (1c)
 correctCov = [[ 0.99558386,  0.90148989], [0.90148989, 1.08607497]]
@@ -175,23 +176,23 @@ Test.assertTrue(np.allclose(correctCov, correlatedCovAuto),
 # #### Use a function from `numpy.linalg` called [eigh](http://docs.scipy.org/doc/numpy/reference/generated/numpy.linalg.eigh.html) to perform the eigendecomposition.  Next, sort the eigenvectors based on their corresponding eigenvalues (from high to low), yielding a matrix where the columns are the eigenvectors (and the first column is the top eigenvector).  Note that [np.argsort](http://docs.scipy.org/doc/numpy/reference/generated/numpy.argsort.html#numpy-argsort) can be used to obtain the indices of the eigenvalues that correspond to the ascending order of eigenvalues.  Finally, set the `topComponent` variable equal to the top eigenvector or prinicipal component, which is a $\scriptsize 2 $-dimensional vector (array with two values).
 # #### Note that the eigenvectors returned by `eigh` appear in the columns and not the rows.  For example, the first eigenvector of `eigVecs` would be found in the first column and could be accessed using `eigVecs[:,0]`.
 
-# In[ ]:
+# In[34]:
 
 # TODO: Replace <FILL IN> with appropriate code
 from numpy.linalg import eigh
 
 # Calculate the eigenvalues and eigenvectors from correlatedCovAuto
-eigVals, eigVecs = <FILL IN>
+eigVals, eigVecs = eigh(correlatedCovAuto)
 print 'eigenvalues: {0}'.format(eigVals)
 print '\neigenvectors: \n{0}'.format(eigVecs)
 
 # Use np.argsort to find the top eigenvector based on the largest eigenvalue
-inds = np.argsort(<FILL IN>)
-topComponent = <FILL IN>
+inds = np.argsort(eigVals)
+topComponent = eigVecs[:,inds[1]]
 print '\ntop principal component: {0}'.format(topComponent)
 
 
-# In[ ]:
+# In[35]:
 
 # TEST Eigendecomposition (1d)
 def checkBasis(vectors, correct):
@@ -203,15 +204,15 @@ Test.assertTrue(checkBasis(topComponent, [0.68915649, 0.72461254]),
 # #### **(1e) PCA scores**
 # #### We just computed the top principal component for a 2-dimensional non-spherical dataset.  Now let's use this principal component to derive a one-dimensional representation for the original data. To compute these compact representations, which are sometimes called PCA "scores", calculate the dot product between each data point in the raw data and the top principal component.
 
-# In[ ]:
+# In[36]:
 
 # TODO: Replace <FILL IN> with appropriate code
 # Use the topComponent and the data from correlatedData to generate PCA scores
-correlatedDataScores = <FILL IN>
+correlatedDataScores = correlatedData.map(lambda x: x.dot(topComponent))
 print 'one-dimensional data (first three):\n{0}'.format(np.asarray(correlatedDataScores.take(3)))
 
 
-# In[ ]:
+# In[37]:
 
 # TEST PCA Scores (1e)
 firstThree = [70.51682806, 69.30622356, 71.13588168]
